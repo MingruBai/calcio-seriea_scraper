@@ -55,36 +55,50 @@ while(True):
 	gameCount = gameCount + 1;
 	print gameCount;
 
-	#gameURL = "http://calcio-seriea.net/tabellini/2014/24762/";
+	#gameURL = "http://calcio-seriea.net/tabellini/2012/23682/";
+
 
 	#Page for each game:
 	response = requests.get(gameURL);
 	soup = bs4.BeautifulSoup(response.text, "html5lib");
 	tables = soup.find_all('table');
 
+	rematch_offset = 0;
+	if len(tables) == 14:
+		rematch_offset = 2;
+
 	league_plus_season = tables[6].find_all('tr')[0].find_all('td')[0].text.strip();
 	meta_league = league_plus_season[0:7];
 	meta_season = league_plus_season[8:];
 
-	match_info_rows = tables[7].find_all('tr');
+	match_info_rows = tables[7 + rematch_offset].find_all('tr');
+	meta_fixture = match_info_rows[1].text.strip();
+	meta_date = match_info_rows[2].text.strip();
+	meta_stadium = match_info_rows[3].text.strip();
 
-	if len(match_info_rows) < 2:
+	print league_plus_season, meta_fixture
+
+	#Figure out that the match was not held:
+	if len(match_info_rows[4].text.strip()) == 0:
 		results.write(gameURL.strip());
 		results.write(',');
 		results.write(meta_league);
 		results.write(',');
 		results.write(meta_season);
+		results.write(',');
+		results.write(meta_fixture);
+		results.write(',');
+		results.write(meta_date);
+		results.write(',');
+		results.write(meta_stadium);
 		results.write('\n');
 		continue;
 
-	
-	meta_fixture = match_info_rows[1].text.strip();
-	meta_date = match_info_rows[2].text.strip();
-	meta_stadium = match_info_rows[3].text.strip();
+
 	meta_ref = ' '.join(match_info_rows[4].text.strip()[8:].strip().split());
 	meta_ref_id = match_info_rows[4].find('a')['href'].split('/')[-2];
 
-	gameStats_rows = tables[8].find_all('tr');
+	gameStats_rows = tables[8 + rematch_offset].find_all('tr');
 
 	team_plus_score = gameStats_rows[0].text.strip().split();
 
@@ -272,6 +286,9 @@ while(True):
 
 	if isinstance(meta_stadium, unicode):
 		meta_stadium = meta_stadium.encode('utf-8');
+
+	if isinstance(meta_fixture, unicode):
+		meta_fixture = " ".join(meta_fixture.encode('utf-8').split('\n'));
 
 	results.write(gameURL.strip() );
 	results.write(",");

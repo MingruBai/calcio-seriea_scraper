@@ -2,16 +2,17 @@ import requests
 import bs4
 import re
 import time
+import html5lib
 
 urlFile = open("gameUrl.txt",'w');
 
-for year in range(1929, 2016):
+for year in range(1947, 2015):
 	print year
 	yearURL = 'http://calcio-seriea.net/risultati/' + str(year);
 	#Page for a season:
 	response = requests.get(yearURL);
 	time.sleep(1)
-	soup = bs4.BeautifulSoup(response.text, "html.parser");
+	soup = bs4.BeautifulSoup(response.text, "html5lib");
 	tables = soup.find_all('table');
 	#Table for each fixture:
 	fixtures = tables[8];
@@ -20,12 +21,14 @@ for year in range(1929, 2016):
 
 	#For each fixture:
 	for date in dates:
+
 		#Get fixture number:
 		fixture = date.text.strip();
 		dateURL = "http://calcio-seriea.net" + date['href'];
+		
 		#Page for each date:
 		response = requests.get(dateURL);
-		soup = bs4.BeautifulSoup(response.text, "html.parser");
+		soup = bs4.BeautifulSoup(response.text, "html5lib");
 
 		tables = soup.find_all('table');
 		results = tables[11];
@@ -38,14 +41,16 @@ for year in range(1929, 2016):
 			# homeTeam = objects[0].text.strip();
 			# awayTeam = objects[1].text.strip();
 			# gameResult = objects[2].text.strip();
+			if len(objects) < 3:
+				continue;
 			gameURL = "http://calcio-seriea.net" + objects[2]['href'];
 			urlFile.write(gameURL + '\n');
 
 
-			
+
 			#Page for each game:
 			# response = requests.get(gameURL);
-			# soup = bs4.BeautifulSoup(response.text, "html.parser");
+			# soup = bs4.BeautifulSoup(response.text, "html5lib");
 			# tables = soup.find_all('table');
 
 			# gameStats = tables[8];
