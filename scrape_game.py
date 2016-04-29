@@ -7,6 +7,9 @@ import html5lib
 urlFile = open("gameUrl.txt",'r');
 results = open("results.csv",'w');
 
+for i in range(287):
+	urlFile.readline();
+
 results.write("URL,League,Season,Fixture,Date,Stadium,Referee,Referee_ID,Team1,Team1_ID,Team1_score,Team2,Team2_ID,Team2_score,Team1_coach,Team1_coach_ID,Team2_coach,Team2_coach_ID,Team1_scorers,Team1_scoreTimes,Team2_scorers,Team2_scoreTimes,");
 for i in range(1,12):
 
@@ -64,6 +67,17 @@ while(True):
 	meta_season = league_plus_season[8:];
 
 	match_info_rows = tables[7].find_all('tr');
+
+	if len(match_info_rows) < 2:
+		results.write(gameURL.strip());
+		results.write(',');
+		results.write(meta_league);
+		results.write(',');
+		results.write(meta_season);
+		results.write('\n');
+		continue;
+
+	
 	meta_fixture = match_info_rows[1].text.strip();
 	meta_date = match_info_rows[2].text.strip();
 	meta_stadium = match_info_rows[3].text.strip();
