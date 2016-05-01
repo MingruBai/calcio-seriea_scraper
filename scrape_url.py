@@ -4,9 +4,9 @@ import re
 import time
 import html5lib
 
-urlFile = open("gameUrl.txt",'w');
+urlFile = open("gameURL_29-16.txt",'w');
 
-for year in range(1947, 2015):
+for year in range(1929, 2016):
 	print year
 	yearURL = 'http://calcio-seriea.net/risultati/' + str(year);
 	#Page for a season:

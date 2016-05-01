@@ -4,11 +4,8 @@ import re
 import time
 import html5lib
 
-urlFile = open("gameUrl.txt",'r');
-results = open("results.csv",'w');
-
-for i in range(287):
-	urlFile.readline();
+urlFile = open("gameURL_29-16.txt",'r');
+results = open("results_29-16.csv",'w');
 
 results.write("URL,League,Season,Fixture,Date,Stadium,Referee,Referee_ID,Team1,Team1_ID,Team1_score,Team2,Team2_ID,Team2_score,Team1_coach,Team1_coach_ID,Team2_coach,Team2_coach_ID,Team1_scorers,Team1_scoreTimes,Team2_scorers,Team2_scoreTimes,");
 for i in range(1,12):
@@ -53,10 +50,8 @@ while(True):
 	if len(gameURL) == 0: break;
 
 	gameCount = gameCount + 1;
-	print gameCount;
-
-	#gameURL = "http://calcio-seriea.net/tabellini/2012/23682/";
-
+	print gameURL.strip();
+	#gameURL = "http://calcio-seriea.net/tabellini/2001/58381/";
 
 	#Page for each game:
 	response = requests.get(gameURL);
@@ -64,7 +59,7 @@ while(True):
 	tables = soup.find_all('table');
 
 	rematch_offset = 0;
-	if len(tables) == 14:
+	if len(tables) >= 14:
 		rematch_offset = 2;
 
 	league_plus_season = tables[6].find_all('tr')[0].find_all('td')[0].text.strip();
@@ -72,14 +67,30 @@ while(True):
 	meta_season = league_plus_season[8:];
 
 	match_info_rows = tables[7 + rematch_offset].find_all('tr');
+
+
 	meta_fixture = match_info_rows[1].text.strip();
 	meta_date = match_info_rows[2].text.strip();
 	meta_stadium = match_info_rows[3].text.strip();
 
-	print league_plus_season, meta_fixture
-
 	#Figure out that the match was not held:
 	if len(match_info_rows[4].text.strip()) == 0:
+
+		if isinstance(meta_league, unicode):
+			meta_league = meta_league.encode('utf-8');
+
+		if isinstance(meta_season, unicode):
+			meta_season = meta_season.encode('utf-8');
+
+		if isinstance(meta_fixture, unicode):
+			meta_fixture = meta_fixture.encode('utf-8');
+
+		if isinstance(meta_date, unicode):
+			meta_date = meta_date.encode('utf-8');
+			
+		if isinstance(meta_stadium, unicode):
+			meta_stadium = meta_stadium.encode('utf-8');
+
 		results.write(gameURL.strip());
 		results.write(',');
 		results.write(meta_league);
@@ -100,12 +111,17 @@ while(True):
 
 	gameStats_rows = tables[8 + rematch_offset].find_all('tr');
 
-	team_plus_score = gameStats_rows[0].text.strip().split();
+	meta_team1 = gameStats_rows[0].find_all('td')[1].text.strip();
+	meta_goals1 = gameStats_rows[0].find_all('td')[3].text.strip();
+	meta_goals2 = gameStats_rows[0].find_all('td')[4].text.strip();
+	meta_team2 = gameStats_rows[0].find_all('td')[6].text.strip();
 
-	meta_team1 = team_plus_score[0];
-	meta_goals1 = team_plus_score[1];
-	meta_goals2 = team_plus_score[2];
-	meta_team2 = team_plus_score[3];
+	# team_plus_score = gameStats_rows[0].text.strip().split();
+
+	# meta_team1 = team_plus_score[0];
+	# meta_goals1 = team_plus_score[1];
+	# meta_goals2 = team_plus_score[2];
+	# meta_team2 = team_plus_score[3];
 
 	meta_team1_id = gameStats_rows[0].find_all('a')[0]['href'].split('/')[-2];
 	meta_team2_id = gameStats_rows[0].find_all('a')[1]['href'].split('/')[-2];
@@ -278,8 +294,12 @@ while(True):
 
 	if isinstance(meta_coach1, unicode):
 		meta_coach1 = meta_coach1.encode('utf-8');
+
 	if isinstance(meta_coach2, unicode):
 		meta_coach2 = meta_coach2.encode('utf-8');
+
+	if isinstance(meta_ref, unicode):
+		meta_ref = meta_ref.encode('utf-8');
 
 	if isinstance(meta_date, unicode):
 		meta_date = meta_date.encode('utf-8');
@@ -404,8 +424,6 @@ while(True):
 
 	results.write('\n');
 	time.sleep(0.1);
-
-
 
 	#break;
 
